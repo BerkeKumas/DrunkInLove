@@ -7,6 +7,7 @@ public class CountdownTimer : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI countdownText;
     private float remainingMinutes = 60f;
+    public bool startTimer = false;
 
     void Start()
     {
@@ -25,7 +26,10 @@ public class CountdownTimer : MonoBehaviour
             countdownText.text = string.Format("{0:00}:{1:00}", currentHour, currentMinute);
 
             yield return new WaitForSeconds(2f);
-            passedMinutes += 1;
+            if (startTimer)
+            {
+                passedMinutes += 1;
+            }
         }
 
         SceneManager.LoadScene(3);

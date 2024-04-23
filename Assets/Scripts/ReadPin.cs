@@ -19,6 +19,7 @@ public class ReadPin : MonoBehaviour
     [SerializeField] private GameObject[] Tiles;
     [SerializeField] private GameObject gameManager;
     [SerializeField] private GameObject pinScriptObject;
+    [SerializeField] private GameObject backgroundAudioObject;
 
     private void Awake()
     {
@@ -85,7 +86,9 @@ public class ReadPin : MonoBehaviour
         if (enteredPinColors.All(c => c == '1'))  // Tüm renkler yeþil ise
         {
             gameManager.GetComponent<TaskManager>().musicTaskDone = true;
+            backgroundAudioObject.GetComponent<AudioSource>().Stop();
             gameObject.GetComponent<AudioSource>().Play();
+
         }
     }
 

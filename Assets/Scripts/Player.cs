@@ -8,7 +8,7 @@ public class Player : MonoBehaviour
 {
     [SerializeField] float moveSpeed = 10f;
     private PlayerInputActions playerInputActions;
-    public bool playerMovement = true;
+    public bool playerMovement = false;
     AudioSource walkingAudio;
     private bool soundPlaying = false;
 
@@ -25,11 +25,11 @@ public class Player : MonoBehaviour
     {
         if (playerMovement)
         {
-            movePlayer();
+            MovePlayer();
         }
     }
 
-    private void movePlayer()
+    private void MovePlayer()
     {
         Vector2 inputVector = playerInputActions.Player.Move.ReadValue<Vector2>();
 

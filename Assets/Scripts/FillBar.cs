@@ -9,7 +9,7 @@ public class FillBar : MonoBehaviour
     public float totalTime = 60f;
     [SerializeField] private TextMeshProUGUI coffeeText;
     [SerializeField] private Image fadeImage;
-
+    public bool startFill = false;
     private float fillSpeed = 2f;
     private float currentTime = 0f;
     Color color;
@@ -20,7 +20,7 @@ public class FillBar : MonoBehaviour
     }
     void Update()
     {
-        if (currentTime < totalTime)
+        if (startFill && (currentTime < totalTime))
         {
             currentTime += Time.deltaTime * fillSpeed;
             fillImage.fillAmount = currentTime / totalTime;

@@ -12,7 +12,7 @@ public class PlayerLook : MonoBehaviour
     Vector2 frameVelocity;
     private void Awake()
     {
-        //Cursor.lockState = CursorLockMode.None;
+        Cursor.lockState = CursorLockMode.Locked;
     }
 
     void Update()

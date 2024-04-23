@@ -38,7 +38,7 @@ public class TaskManager : MonoBehaviour
 
     void Start()
     {
-        tasks.Add(new Task("Clothes Count: Clean all clothes objects.", clothesTaskText));
+        tasks.Add(new Task("Put clothes into laundry basket.", clothesTaskText));
         tasks.Add(new Task("Pour wine into a glass.", wineTaskText));
         tasks.Add(new Task("Prepare a fruit plate.", fruitTaskText));
         tasks.Add(new Task("Play music on the laptop.", musicTaskText));
@@ -84,7 +84,7 @@ public class TaskManager : MonoBehaviour
     {
         clothesObjects = clothesObjects.Where(cloth => cloth != null).ToList(); // Null olmayanlarý temizle
         int clothesCount = clothesObjects.Count;
-        tasks[0].Description = $"Clothes Count: Clean all {clothesCount} clothes objects.";
+        tasks[0].Description = $"Put {clothesCount} clothes into laundry basket.";
         tasks[0].TaskText.text = tasks[0].Description;
 
         if (clothesCount == 0)
@@ -101,6 +101,7 @@ public class TaskManager : MonoBehaviour
         {
             task.IsCompleted = true;
             task.TaskText.color = Color.green; // Görev tamamlandýðýnda metin rengi yeþil olacak
+            task.TaskText.text = $"<s>{task.Description}</s>";
         }
     }
 }
