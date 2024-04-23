@@ -9,8 +9,6 @@ public class PickObjects : MonoBehaviour
     [SerializeField] private GameObject holdPosObj;
     private GameObject holdObject;
     private float rotationAmount = 0f;
-    private bool holdObjectBool = false;
-    private bool putObjectBool = false;
     private GameObject rayObject;
     private bool holdingObject = false;
     private bool putLaundry = false;
@@ -22,7 +20,8 @@ public class PickObjects : MonoBehaviour
     [SerializeField] private GameObject cupObject;
     [SerializeField] private GameObject cupPosObject;
     private Vector3 cupPos;
-    [SerializeField] private GameObject cameraObject;
+    [SerializeField] private GameObject itemSoundObject;
+    [SerializeField] private AudioClip[] itemSounds;
 
     private void Awake()
     {
@@ -51,7 +50,7 @@ public class PickObjects : MonoBehaviour
                 {
                     if (rayObject.tag == "fruittag" || rayObject.tag == "clothestag" || rayObject.tag == "cuptag" || rayObject.tag == "champtag")
                     {
-                        GrabSound();
+                        GrabSound(0);
                         holdObject = rayObject;
                         holdObject.transform.GetComponent<Rigidbody>().isKinematic = true;
                         uiElement1.SetActive(false);
@@ -66,7 +65,7 @@ public class PickObjects : MonoBehaviour
             {
                 if (holdObject.tag == "cuptag")
                 {
-                    GrabSound();
+                    GrabSound(1);
                     Instantiate(cupObject, cupPos, Quaternion.identity);
                     fillBarObject.GetComponent<FillBar>().DecreaseFill(50f);
                     Destroy(holdObject);
@@ -74,7 +73,7 @@ public class PickObjects : MonoBehaviour
                 }
                 else if (putLaundry)
                 {
-                    GrabSound();
+                    GrabSound(0);
                     Destroy(holdObject);
                     holdingObject = false;
                 }
@@ -144,12 +143,12 @@ public class PickObjects : MonoBehaviour
             {
                 focusLaptop = true;
                 laptopObject = rayObject;
-                laptopObject.transform.GetChild(0).GetChild(0).gameObject.SetActive(true);
+                laptopObject.transform.GetChild(0).GetChild(2).gameObject.SetActive(true);
             }
             else if (laptopObject != null)
             {
                 focusLaptop = false;
-                laptopObject.transform.GetChild(0).GetChild(0).gameObject.SetActive(false);
+                laptopObject.transform.GetChild(0).GetChild(2).gameObject.SetActive(false);
             }
         }
         else
@@ -163,16 +162,17 @@ public class PickObjects : MonoBehaviour
             uiElement2.SetActive(false);
             if (laptopObject != null)
             {
-                laptopObject.transform.GetChild(0).GetChild(0).gameObject.SetActive(false);
+                laptopObject.transform.GetChild(0).GetChild(2).gameObject.SetActive(false);
             }
             focusLaptop = false;
             putLaundry = false;
         }
     }
 
-    private void GrabSound()
+    private void GrabSound(int index)
     {
-        cameraObject.GetComponent<AudioSource>().Play();
+        itemSoundObject.GetComponent<AudioSource>().clip = itemSounds[index];
+        itemSoundObject.GetComponent<AudioSource>().Play();
     }
     private void RotateObject()
     {

@@ -7,7 +7,6 @@ using UnityEngine.TextCore.Text;
 public class Player : MonoBehaviour
 {
     [SerializeField] float moveSpeed = 10f;
-    [SerializeField] float rotateSpeed = 1f;
     private PlayerInputActions playerInputActions;
     public bool playerMovement = true;
     AudioSource walkingAudio;

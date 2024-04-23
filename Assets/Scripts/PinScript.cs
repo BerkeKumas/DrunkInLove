@@ -7,7 +7,6 @@ public class PinScript : MonoBehaviour
 {
 
     public bool enterPin = false;
-    private bool pinModeBool = false;
     [SerializeField] private GameObject mainCamera;
     [SerializeField] private GameObject pinCamera;
     [SerializeField] private GameObject player;
@@ -26,7 +25,7 @@ public class PinScript : MonoBehaviour
         if (enterPin)
         {
             playerScript.playerMovement = false;
-            gameObject.transform.GetChild(0).GetChild(0).gameObject.SetActive(false);
+            gameObject.transform.GetChild(0).GetChild(2).gameObject.SetActive(false);
             pinCamera.SetActive(true);
             mainCamera.SetActive(false);
             pinBoard.GetComponent<ReadPin>().pinMode = true;
@@ -34,7 +33,6 @@ public class PinScript : MonoBehaviour
         else
         {
             playerScript.playerMovement = true;
-            pinModeBool = false;
             mainCamera.SetActive(true);
             pinCamera.SetActive(false);
             pinBoard.GetComponent<ReadPin>().pinMode = false;
