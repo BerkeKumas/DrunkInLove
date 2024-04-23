@@ -8,7 +8,7 @@ public class ChampScript : MonoBehaviour
     [SerializeField] private GameObject glass;
     [SerializeField] private float pourRiseSpeed = 1f;
     [SerializeField] private GameObject gameManager;
-    private float maxPourDistance = 0.3f;
+    private float maxPourDistance = 0.4f;
 
     void Update()
     {
