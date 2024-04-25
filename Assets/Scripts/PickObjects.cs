@@ -1,27 +1,36 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Xml.Linq;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 
 public class PickObjects : MonoBehaviour
 {
-    [SerializeField] private GameObject holdPosObj;
-    private GameObject holdObject;
-    private float rotationAmount = 0f;
-    private GameObject rayObject;
-    private bool holdingObject = false;
-    private bool putLaundry = false;
-    private bool focusLaptop = false;
-    private GameObject laptopObject;
+    [SerializeField] private GameObject holdObjectParent;
+    [SerializeField] private GameObject zoomObjectParent;
     [SerializeField] private GameObject uiElement1;
     [SerializeField] private GameObject uiElement2;
+    [SerializeField] private GameObject uiElement3;
+    [SerializeField] private GameObject uiElement4;
     [SerializeField] private GameObject fillBarObject;
     [SerializeField] private GameObject cupObject;
     [SerializeField] private GameObject cupPosObject;
-    private Vector3 cupPos;
     [SerializeField] private GameObject itemSoundObject;
+    [SerializeField] private GameObject keyObject;
     [SerializeField] private AudioClip[] itemSounds;
+    [SerializeField] private TextMeshProUGUI captionTextObject;
+    private GameObject holdObject;
+    private GameObject rayObject;
+    private GameObject laptopObject;
+    private GameObject zoomObject;
+    private GameObject doorObject;
+    private float rotationAmount = 0f;
+    private bool holdingObject = false;
+    private bool putLaundry = false;
+    private bool focusLaptop = false;
+    private bool openDoorBool = false;
+    private Vector3 cupPos;
 
     private void Awake()
     {
@@ -48,16 +57,31 @@ public class PickObjects : MonoBehaviour
             {
                 if (rayObject != null)
                 {
-                    if (rayObject.tag == "fruittag" || rayObject.tag == "clothestag" || rayObject.tag == "cuptag" || rayObject.tag == "champtag")
+                    if (rayObject.tag == "keytag" || rayObject.tag == "fruittag" || rayObject.tag == "clothestag" || rayObject.tag == "cuptag" || rayObject.tag == "champtag" || rayObject.tag == "flashlighttag")
                     {
-                        GrabSound(0);
+                        ItemSounds(0);
                         holdObject = rayObject;
                         holdObject.transform.GetComponent<Rigidbody>().isKinematic = true;
                         uiElement1.SetActive(false);
-                        holdObject.transform.parent = holdPosObj.transform;
+                        holdObject.transform.parent = holdObjectParent.transform;
                         holdObject.GetComponent<BoxCollider>().enabled = false;
                         holdObject.transform.localPosition = Vector3.zero;
                         holdingObject = true;
+                        if (rayObject.tag == "flashlighttag")
+                        {
+                            rayObject.GetComponent<Light>().enabled = true;
+                            rayObject.transform.localEulerAngles = new Vector3(-15, 0, 0);
+                            rayObject.transform.localPosition = new Vector3(0.7f, -0.75f, -0.75f);
+                        }
+                        else if (rayObject.tag == "lastlaundrytag")
+                        {
+                            DropKey();
+                        }
+                    }
+                    else if (rayObject.tag == "zoomtag")
+                    {
+                        zoomObject = Instantiate(rayObject, zoomObjectParent.transform.position, Quaternion.identity, zoomObjectParent.transform);
+                        zoomObject.transform.localEulerAngles = new Vector3(90, 0, 0);
                     }
                 }
             }
@@ -65,7 +89,8 @@ public class PickObjects : MonoBehaviour
             {
                 if (holdObject.tag == "cuptag")
                 {
-                    GrabSound(1);
+                    ItemSounds(1);
+                    captionTextObject.text = "";
                     Instantiate(cupObject, cupPos, Quaternion.identity);
                     fillBarObject.GetComponent<FillBar>().DecreaseFill(50f);
                     Destroy(holdObject);
@@ -73,9 +98,13 @@ public class PickObjects : MonoBehaviour
                 }
                 else if (putLaundry)
                 {
-                    GrabSound(0);
+                    ItemSounds(0);
                     Destroy(holdObject);
                     holdingObject = false;
+                }
+                else if (rayObject.tag == "zoomtag")
+                {
+                    Destroy(zoomObject.gameObject);
                 }
                 else
                 {
@@ -83,6 +112,18 @@ public class PickObjects : MonoBehaviour
                     holdObject.GetComponent<BoxCollider>().enabled = true;
                     holdObject.transform.parent = null;
                     holdingObject = false;
+                    if (rayObject.tag == "flashlighttag")
+                    {
+                        rayObject.GetComponent<Light>().enabled = false;
+                    }
+                    else if (openDoorBool)
+                    {
+                        openDoorBool = false;
+                        holdObject = null;
+                        uiElement1.SetActive(false);
+                        uiElement4.SetActive(false);
+                        doorObject.transform.GetChild(0).gameObject.SetActive(true);
+                    }
                 }
             }
         }
@@ -116,27 +157,39 @@ public class PickObjects : MonoBehaviour
         if (Physics.Raycast(ray, out hit, rayLength))
         {
             rayObject = hit.transform.gameObject;
-            if (rayObject.tag == "fruittag" || rayObject.tag == "clothestag" || rayObject.tag == "cuptag" || rayObject.tag == "champtag")
+            if (rayObject.tag == "keytag" || rayObject.tag == "fruittag" || rayObject.tag == "clothestag" || rayObject.tag == "cuptag" || rayObject.tag == "champtag" || rayObject.tag == "flashlighttag" || rayObject.tag == "lastlaundrytag")
             {
                 uiElement1.SetActive(true);
             }
-            else
+            else if (rayObject.tag == "laundryboxtag" && holdObject != null)
             {
-                uiElement1.SetActive(false);
-            }
-
-            if (rayObject.tag == "cantag" && holdObject != null)
-            {
-                if (holdObject.tag == "clothestag")
+                if (holdObject.tag == "clothestag" || holdObject.tag == "lastlaundrytag")
                 {
                     uiElement2.SetActive(true);
                     putLaundry = true;
                 }
             }
+            else if (rayObject.tag == "doortag" && holdObject != null)
+            {
+                if (holdObject.tag == "keytag")
+                {
+                    uiElement4.SetActive(true);
+                    doorObject = rayObject.gameObject;
+                    openDoorBool = true;
+                }
+            }
+            else if (rayObject.tag == "zoomtag")
+            {
+                uiElement3.SetActive(true);
+            }
             else
             {
+                uiElement1.SetActive(false);
                 uiElement2.SetActive(false);
+                uiElement3.SetActive(false);
+                uiElement4.SetActive(false);
                 putLaundry = false;
+                openDoorBool = false;
             }
 
             if (rayObject.tag == "laptoptag")
@@ -160,16 +213,19 @@ public class PickObjects : MonoBehaviour
         {
             uiElement1.SetActive(false);
             uiElement2.SetActive(false);
+            uiElement3.SetActive(false);
+            uiElement4.SetActive(false);
             if (laptopObject != null)
             {
                 laptopObject.transform.GetChild(0).GetChild(2).gameObject.SetActive(false);
             }
             focusLaptop = false;
             putLaundry = false;
+            openDoorBool = false;
         }
     }
 
-    private void GrabSound(int index)
+    private void ItemSounds(int index)
     {
         itemSoundObject.GetComponent<AudioSource>().clip = itemSounds[index];
         itemSoundObject.GetComponent<AudioSource>().Play();
@@ -201,5 +257,10 @@ public class PickObjects : MonoBehaviour
                 holdObject.transform.GetChild(0).rotation = Quaternion.identity;
             }
         }
+    }
+
+    private void DropKey()
+    {
+        Instantiate(keyObject, holdObjectParent.transform.position, Quaternion.identity);
     }
 }

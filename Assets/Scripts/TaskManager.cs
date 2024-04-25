@@ -19,7 +19,7 @@ public class TaskManager : MonoBehaviour
             IsCompleted = false;
             TaskText = taskText;
             TaskText.color = Color.red;  // Baþlangýçta görevlerin metin rengi kýrmýzý
-            TaskText.text = description;  // Görevin açýklamasýný baþlangýçta ayarla
+            TaskText.text = description;
         }
     }
 
@@ -36,13 +36,17 @@ public class TaskManager : MonoBehaviour
     public bool fruitTaskDone = false;
     public bool musicTaskDone = false;
 
+    private string captionText = "";
+    [SerializeField] private TextMeshProUGUI captionTextObject;
+    [SerializeField] private GameObject lastLaundry;
+
     void Start()
     {
         tasks.Add(new Task("Put clothes into laundry basket.", clothesTaskText));
         tasks.Add(new Task("Pour wine into a glass.", wineTaskText));
         tasks.Add(new Task("Prepare a fruit plate.", fruitTaskText));
         tasks.Add(new Task("Play music on the laptop.", musicTaskText));
-
+        
         StartCoroutine(CheckClothesTaskPeriodically());
     }
 
@@ -50,8 +54,8 @@ public class TaskManager : MonoBehaviour
     {
         while (isClothesTaskActive)
         {
-            UpdateClothesTask();  // Kýyafet görevini güncelle
-            yield return new WaitForSeconds(0.5f);  // Her 0.5 saniyede bir kontrol et
+            UpdateClothesTask();
+            yield return new WaitForSeconds(0.5f);
         }
     }
 
@@ -65,10 +69,12 @@ public class TaskManager : MonoBehaviour
 
         if (musicTaskDone)
             CompleteTask(3);
+
         if (!isClothesTaskActive && wineTaskDone && fruitTaskDone && musicTaskDone)
-        {
-            SceneManager.LoadScene(2);
-        }
+            AllTasksEnded();
+
+        if (captionTextObject.text == "")
+            captionTextObject.text = captionText;
     }
 
     public void DestroyClothes(GameObject cloth)
@@ -103,5 +109,11 @@ public class TaskManager : MonoBehaviour
             task.TaskText.color = Color.green; // Görev tamamlandýðýnda metin rengi yeþil olacak
             task.TaskText.text = $"<s>{task.Description}</s>";
         }
+    }
+
+    private void AllTasksEnded()
+    {
+        captionText = "Looks like i missed a dirty laundry.";
+        lastLaundry.gameObject.SetActive(true);
     }
 }

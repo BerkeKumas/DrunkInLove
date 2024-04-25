@@ -5,12 +5,17 @@ TagManager:
   serializedVersion: 2
   tags:
   - clothestag
-  - cantag
   - fruittag
   - cuptag
   - laptoptag
   - champtag
   - platetag
+  - zoomtag
+  - flashlighttag
+  - lastlaundrytag
+  - laundryboxtag
+  - keytag
+  - doortag
   layers:
   - Default
   - TransparentFX

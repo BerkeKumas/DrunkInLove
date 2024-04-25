@@ -12,6 +12,15 @@ public class StartAfterDelay : MonoBehaviour
     {
         StartCoroutine(Delay());
     }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Return))
+        {
+            StartGame();
+        }
+    }
+
     private IEnumerator Delay()
     {
         yield return new WaitForSeconds(24);
@@ -25,6 +34,7 @@ public class StartAfterDelay : MonoBehaviour
         player.GetComponent<Player>().playerMovement = true;
         laptop.GetComponent<PinScript>().startPin = true;
         backgroundAudioObject.GetComponent<AudioSource>().Play();
+        this.enabled = false;
     }
 
 }

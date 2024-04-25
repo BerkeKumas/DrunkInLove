@@ -7,7 +7,7 @@ public class FillBar : MonoBehaviour
 {
     public Image fillImage;
     public float totalTime = 60f;
-    [SerializeField] private TextMeshProUGUI coffeeText;
+    [SerializeField] private TextMeshProUGUI captionTextObject;
     [SerializeField] private Image fadeImage;
     public bool startFill = false;
     private float fillSpeed = 2f;
@@ -29,13 +29,12 @@ public class FillBar : MonoBehaviour
             {
                 color.a = (currentTime - 30) * 2 / totalTime;
                 fadeImage.color = color;
-                coffeeText.gameObject.SetActive(true);
+                captionTextObject.text = "I need a coffee...";
             }
             else
             {
                 color.a = 0;
                 fadeImage.color = color;
-                coffeeText.gameObject.SetActive(false);
             }
 
 
