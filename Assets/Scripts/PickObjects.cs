@@ -3,16 +3,21 @@ using System.Collections.Generic;
 using System.Xml.Linq;
 using TMPro;
 using Unity.VisualScripting;
+using Unity.VisualScripting.Antlr3.Runtime;
 using UnityEngine;
 
 public class PickObjects : MonoBehaviour
 {
+    [SerializeField] private GameObject taskManager;
     [SerializeField] private GameObject holdObjectParent;
     [SerializeField] private GameObject zoomObjectParent;
     [SerializeField] private GameObject uiElement1;
     [SerializeField] private GameObject uiElement2;
     [SerializeField] private GameObject uiElement3;
     [SerializeField] private GameObject uiElement4;
+    [SerializeField] private GameObject uiElement5;
+    [SerializeField] private GameObject uiElement6;
+    [SerializeField] private GameObject uiElement7;
     [SerializeField] private GameObject fillBarObject;
     [SerializeField] private GameObject cupObject;
     [SerializeField] private GameObject cupPosObject;
@@ -29,8 +34,12 @@ public class PickObjects : MonoBehaviour
     private bool holdingObject = false;
     private bool putLaundry = false;
     private bool focusLaptop = false;
-    private bool openDoorBool = false;
+    private bool holdingKeyToDoor = false;
+    private bool isDoorOpen = false;
+    private bool isDoorLocked = true;
     private Vector3 cupPos;
+    private Quaternion closedRotation;
+    private Quaternion openRotation;
 
     private void Awake()
     {
@@ -53,11 +62,16 @@ public class PickObjects : MonoBehaviour
                 }
             }
 
+            if (rayObject.tag == "doortag" && !isDoorLocked)
+            {
+                ToggleDoor();
+            }
+
             if (holdingObject == false)
             {
                 if (rayObject != null)
                 {
-                    if (rayObject.tag == "keytag" || rayObject.tag == "fruittag" || rayObject.tag == "clothestag" || rayObject.tag == "cuptag" || rayObject.tag == "champtag" || rayObject.tag == "flashlighttag")
+                    if (rayObject.tag == "lastlaundrytag" || rayObject.tag == "keytag" || rayObject.tag == "fruittag" || rayObject.tag == "clothestag" || rayObject.tag == "cuptag" || rayObject.tag == "champtag" || rayObject.tag == "flashlighttag")
                     {
                         ItemSounds(0);
                         holdObject = rayObject;
@@ -76,12 +90,20 @@ public class PickObjects : MonoBehaviour
                         else if (rayObject.tag == "lastlaundrytag")
                         {
                             DropKey();
+                            taskManager.GetComponent<TaskManager>().lastLaundryActive = true;
+                            captionTextObject.text = "I think something fell on the ground.";
+                        }
+                        else if (rayObject.tag == "keytag")
+                        {
+                            captionTextObject.text = "A key I wonder where this belongs.";
                         }
                     }
                     else if (rayObject.tag == "zoomtag")
                     {
                         zoomObject = Instantiate(rayObject, zoomObjectParent.transform.position, Quaternion.identity, zoomObjectParent.transform);
                         zoomObject.transform.localEulerAngles = new Vector3(90, 0, 0);
+                        holdObject = zoomObject.gameObject;
+                        holdingObject = true;
                     }
                 }
             }
@@ -102,9 +124,10 @@ public class PickObjects : MonoBehaviour
                     Destroy(holdObject);
                     holdingObject = false;
                 }
-                else if (rayObject.tag == "zoomtag")
+                else if (holdObject.tag == "zoomtag")
                 {
                     Destroy(zoomObject.gameObject);
+                    holdingObject = false;
                 }
                 else
                 {
@@ -116,13 +139,13 @@ public class PickObjects : MonoBehaviour
                     {
                         rayObject.GetComponent<Light>().enabled = false;
                     }
-                    else if (openDoorBool)
+                    else if (holdingKeyToDoor)
                     {
-                        openDoorBool = false;
+                        holdingKeyToDoor = false;
                         holdObject = null;
-                        uiElement1.SetActive(false);
-                        uiElement4.SetActive(false);
-                        doorObject.transform.GetChild(0).gameObject.SetActive(true);
+                        uiElement4.SetActive(true);
+                        uiElement6.SetActive(false);
+                        isDoorLocked = false;
                     }
                 }
             }
@@ -169,13 +192,57 @@ public class PickObjects : MonoBehaviour
                     putLaundry = true;
                 }
             }
-            else if (rayObject.tag == "doortag" && holdObject != null)
+            else if (rayObject.tag == "doortag")
             {
-                if (holdObject.tag == "keytag")
+                uiElement1.SetActive(false);
+                if (holdObject != null)
                 {
-                    uiElement4.SetActive(true);
-                    doorObject = rayObject.gameObject;
-                    openDoorBool = true;
+                    if (isDoorLocked)
+                    {
+                        if (holdObject.tag == "keytag")
+                        {
+                            uiElement6.SetActive(true);
+                            doorObject = rayObject.gameObject;
+                            closedRotation = doorObject.transform.rotation;
+                            openRotation = doorObject.transform.rotation * Quaternion.Euler(0, -90f, 0);
+                            holdingKeyToDoor = true;
+                        }
+                    }
+                    else
+                    {
+                        uiElement6.SetActive(false);
+                        if (!isDoorOpen)
+                        {
+                            uiElement7.SetActive(false);
+                            uiElement4.SetActive(true);
+                        }
+                        else
+                        {
+                            uiElement4.SetActive(false);
+                            uiElement7.SetActive(true);
+                        }
+                    }
+                }
+                else
+                {
+                    if (isDoorLocked)
+                    {
+                        uiElement5.SetActive(true);
+                    }
+                    else
+                    {
+                        uiElement5.SetActive(false);
+                        if (!isDoorOpen)
+                        {
+                            uiElement7.SetActive(false);
+                            uiElement4.SetActive(true);
+                        }
+                        else
+                        {
+                            uiElement4.SetActive(false);
+                            uiElement7.SetActive(true);
+                        }
+                    }
                 }
             }
             else if (rayObject.tag == "zoomtag")
@@ -188,8 +255,11 @@ public class PickObjects : MonoBehaviour
                 uiElement2.SetActive(false);
                 uiElement3.SetActive(false);
                 uiElement4.SetActive(false);
+                uiElement5.SetActive(false);
+                uiElement6.SetActive(false);
+                uiElement7.SetActive(false);
                 putLaundry = false;
-                openDoorBool = false;
+                holdingKeyToDoor = false;
             }
 
             if (rayObject.tag == "laptoptag")
@@ -215,13 +285,16 @@ public class PickObjects : MonoBehaviour
             uiElement2.SetActive(false);
             uiElement3.SetActive(false);
             uiElement4.SetActive(false);
+            uiElement5.SetActive(false);
+            uiElement6.SetActive(false);
+            uiElement7.SetActive(false);
             if (laptopObject != null)
             {
                 laptopObject.transform.GetChild(0).GetChild(2).gameObject.SetActive(false);
             }
             focusLaptop = false;
             putLaundry = false;
-            openDoorBool = false;
+            holdingKeyToDoor = false;
         }
     }
 
@@ -262,5 +335,29 @@ public class PickObjects : MonoBehaviour
     private void DropKey()
     {
         Instantiate(keyObject, holdObjectParent.transform.position, Quaternion.identity);
+    }
+
+    public void ToggleDoor()
+    {
+        // Kapý durumunu deðiþtir
+        isDoorOpen = !isDoorOpen; // isOpen deðerini her çaðrýldýðýnda deðiþtir
+        StartCoroutine(RotateDoor(isDoorOpen)); // Yeni duruma göre kapýyý döndür
+    }
+
+    IEnumerator RotateDoor(bool opening)
+    {
+        float duration = 1.0f; // Kapýnýn dönme süresi
+        Quaternion startRotation = doorObject.transform.rotation; // Güncel baþlangýç rotasyonu
+        Quaternion endRotation = opening ? openRotation : closedRotation;
+
+        float time = 0.0f;
+        while (time < duration)
+        {
+            doorObject.transform.rotation = Quaternion.Slerp(startRotation, endRotation, time / duration);
+            time += Time.deltaTime;
+            yield return null;
+        }
+
+        doorObject.transform.rotation = endRotation; // Rotasyonu tamamlama
     }
 }

@@ -39,6 +39,7 @@ public class TaskManager : MonoBehaviour
     private string captionText = "";
     [SerializeField] private TextMeshProUGUI captionTextObject;
     [SerializeField] private GameObject lastLaundry;
+    public bool lastLaundryActive = false;
 
     void Start()
     {
@@ -72,9 +73,6 @@ public class TaskManager : MonoBehaviour
 
         if (!isClothesTaskActive && wineTaskDone && fruitTaskDone && musicTaskDone)
             AllTasksEnded();
-
-        if (captionTextObject.text == "")
-            captionTextObject.text = captionText;
     }
 
     public void DestroyClothes(GameObject cloth)
@@ -113,7 +111,11 @@ public class TaskManager : MonoBehaviour
 
     private void AllTasksEnded()
     {
-        captionText = "Looks like i missed a dirty laundry.";
-        lastLaundry.gameObject.SetActive(true);
+        if (!lastLaundryActive && captionTextObject.text == "")
+        {
+            captionText = "Looks like i missed a dirty laundry.";
+            captionTextObject.text = captionText;
+            lastLaundry.gameObject.SetActive(true);
+        }
     }
 }
