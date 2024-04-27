@@ -6,7 +6,6 @@ using UnityEngine.Timeline;
 public class PinScript : MonoBehaviour
 {
 
-    public bool enterPin = false;
     [SerializeField] private GameObject mainCamera;
     [SerializeField] private GameObject pinCamera;
     [SerializeField] private GameObject player;
@@ -14,6 +13,7 @@ public class PinScript : MonoBehaviour
     [SerializeField] private GameObject pinBoard;
     [SerializeField] private AudioClip[] keySounds;
     public bool startPin = false;
+    public bool enterPin = false;
 
     private void Awake()
     {

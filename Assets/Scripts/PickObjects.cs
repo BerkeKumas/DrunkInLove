@@ -18,6 +18,8 @@ public class PickObjects : MonoBehaviour
     [SerializeField] private GameObject uiElement5;
     [SerializeField] private GameObject uiElement6;
     [SerializeField] private GameObject uiElement7;
+    [SerializeField] private GameObject uiElement8;
+    [SerializeField] private GameObject uiElement9;
     [SerializeField] private GameObject fillBarObject;
     [SerializeField] private GameObject cupObject;
     [SerializeField] private GameObject cupPosObject;
@@ -52,22 +54,18 @@ public class PickObjects : MonoBehaviour
         {
             if (focusLaptop)
             {
-                if (laptopObject.GetComponent<PinScript>().enterPin == false)
-                {
-                    laptopObject.GetComponent<PinScript>().enterPin = true;
-                }
-                else
-                {
-                    laptopObject.GetComponent<PinScript>().enterPin = false;
-                }
+                laptopObject.GetComponent<PinScript>().enterPin = !laptopObject.GetComponent<PinScript>().enterPin;
             }
 
             if (rayObject.tag == "doortag" && !isDoorLocked)
             {
                 ToggleDoor();
             }
-
-            if (holdingObject == false)
+            else if (rayObject.tag == "lightswitchtag")
+            {
+                rayObject.GetComponent<LightSwitchScript>().SwitchPressed();
+            }
+            else if (holdingObject == false)
             {
                 if (rayObject != null)
                 {
@@ -95,13 +93,13 @@ public class PickObjects : MonoBehaviour
                         }
                         else if (rayObject.tag == "keytag")
                         {
-                            captionTextObject.text = "A key I wonder where this belongs.";
+                            captionTextObject.text = "A key I wonder where this opens.";
                         }
                     }
                     else if (rayObject.tag == "zoomtag")
                     {
                         zoomObject = Instantiate(rayObject, zoomObjectParent.transform.position, Quaternion.identity, zoomObjectParent.transform);
-                        zoomObject.transform.localEulerAngles = new Vector3(90, 0, 0);
+                        zoomObject.transform.localEulerAngles = new Vector3(0, 0, 0);
                         holdObject = zoomObject.gameObject;
                         holdingObject = true;
                     }
@@ -112,7 +110,6 @@ public class PickObjects : MonoBehaviour
                 if (holdObject.tag == "cuptag")
                 {
                     ItemSounds(1);
-                    captionTextObject.text = "";
                     Instantiate(cupObject, cupPos, Quaternion.identity);
                     fillBarObject.GetComponent<FillBar>().DecreaseFill(50f);
                     Destroy(holdObject);
@@ -135,6 +132,7 @@ public class PickObjects : MonoBehaviour
                     holdObject.GetComponent<BoxCollider>().enabled = true;
                     holdObject.transform.parent = null;
                     holdingObject = false;
+                    holdObject = null;
                     if (rayObject.tag == "flashlighttag")
                     {
                         rayObject.GetComponent<Light>().enabled = false;
@@ -142,7 +140,6 @@ public class PickObjects : MonoBehaviour
                     else if (holdingKeyToDoor)
                     {
                         holdingKeyToDoor = false;
-                        holdObject = null;
                         uiElement4.SetActive(true);
                         uiElement6.SetActive(false);
                         isDoorLocked = false;
@@ -207,9 +204,14 @@ public class PickObjects : MonoBehaviour
                             openRotation = doorObject.transform.rotation * Quaternion.Euler(0, -90f, 0);
                             holdingKeyToDoor = true;
                         }
+                        else
+                        {
+                            uiElement5.SetActive(true);
+                        }
                     }
                     else
                     {
+                        uiElement5.SetActive(false);
                         uiElement6.SetActive(false);
                         if (!isDoorOpen)
                         {
@@ -249,6 +251,19 @@ public class PickObjects : MonoBehaviour
             {
                 uiElement3.SetActive(true);
             }
+            else if (rayObject.tag == "lightswitchtag")
+            {
+                if (rayObject.GetComponent<LightSwitchScript>().isLightOn)
+                {
+                    uiElement9.SetActive(false);
+                    uiElement8.SetActive(true);
+                }
+                else
+                {
+                    uiElement8.SetActive(false);
+                    uiElement9.SetActive(true);
+                }
+            }
             else
             {
                 uiElement1.SetActive(false);
@@ -258,6 +273,8 @@ public class PickObjects : MonoBehaviour
                 uiElement5.SetActive(false);
                 uiElement6.SetActive(false);
                 uiElement7.SetActive(false);
+                uiElement8.SetActive(false);
+                uiElement9.SetActive(false);
                 putLaundry = false;
                 holdingKeyToDoor = false;
             }
@@ -288,6 +305,8 @@ public class PickObjects : MonoBehaviour
             uiElement5.SetActive(false);
             uiElement6.SetActive(false);
             uiElement7.SetActive(false);
+            uiElement8.SetActive(false);
+            uiElement9.SetActive(false);
             if (laptopObject != null)
             {
                 laptopObject.transform.GetChild(0).GetChild(2).gameObject.SetActive(false);
@@ -339,16 +358,15 @@ public class PickObjects : MonoBehaviour
 
     public void ToggleDoor()
     {
-        // Kapý durumunu deðiþtir
-        isDoorOpen = !isDoorOpen; // isOpen deðerini her çaðrýldýðýnda deðiþtir
-        StartCoroutine(RotateDoor(isDoorOpen)); // Yeni duruma göre kapýyý döndür
+        StartCoroutine(RotateDoor(isDoorOpen));
+        isDoorOpen = !isDoorOpen;
     }
 
-    IEnumerator RotateDoor(bool opening)
+    IEnumerator RotateDoor(bool isOpen)
     {
-        float duration = 1.0f; // Kapýnýn dönme süresi
-        Quaternion startRotation = doorObject.transform.rotation; // Güncel baþlangýç rotasyonu
-        Quaternion endRotation = opening ? openRotation : closedRotation;
+        float duration = 1.0f;
+        Quaternion startRotation = doorObject.transform.rotation;
+        Quaternion endRotation = isOpen ? closedRotation : openRotation;
 
         float time = 0.0f;
         while (time < duration)
@@ -358,6 +376,6 @@ public class PickObjects : MonoBehaviour
             yield return null;
         }
 
-        doorObject.transform.rotation = endRotation; // Rotasyonu tamamlama
+        doorObject.transform.rotation = endRotation;
     }
 }

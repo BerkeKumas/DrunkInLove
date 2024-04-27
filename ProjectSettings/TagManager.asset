@@ -16,6 +16,7 @@ TagManager:
   - laundryboxtag
   - keytag
   - doortag
+  - lightswitchtag
   layers:
   - Default
   - TransparentFX

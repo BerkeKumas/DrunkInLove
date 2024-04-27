@@ -2,6 +2,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using System.Collections;
 
 public class FillBar : MonoBehaviour
 {
@@ -14,16 +15,23 @@ public class FillBar : MonoBehaviour
     private float currentTime = 0f;
     Color color;
 
+    public Material drunkMaterial;
+
+    [Range(0.0f, 1.0f)]
+    public float wobbleIntensity = 1f;
+
+
     private void Awake()
     {
         color = fadeImage.color;
     }
-    void Update()
+    private void Update()
     {
         if (startFill && (currentTime < totalTime))
         {
             currentTime += Time.deltaTime * fillSpeed;
             fillImage.fillAmount = currentTime / totalTime;
+            drunkMaterial.SetFloat("_WobbleIntensity", currentTime / totalTime * 0.075f);
 
             if (currentTime > 30)
             {
@@ -37,7 +45,6 @@ public class FillBar : MonoBehaviour
                 fadeImage.color = color;
             }
 
-
             if (currentTime >= 59)
             {
                 SceneManager.LoadScene(3);
@@ -47,7 +54,25 @@ public class FillBar : MonoBehaviour
 
     public void DecreaseFill(float amount)
     {
-        currentTime = Mathf.Max(0, currentTime - amount);
+        StartCoroutine(DecreaseFillOverTime(amount, 1.0f));
+    }
+
+    private IEnumerator DecreaseFillOverTime(float amount, float duration)
+    {
+        float startAmount = currentTime;
+        float endAmount = Mathf.Max(0, currentTime - amount);
+        float elapsedTime = 0f;
+
+        while (elapsedTime < duration)
+        {
+            elapsedTime += Time.deltaTime;
+            currentTime = Mathf.Lerp(startAmount, endAmount, elapsedTime / duration);
+            fillImage.fillAmount = currentTime / totalTime;
+            yield return null;
+        }
+
+        captionTextObject.text = "";
+        currentTime = endAmount;
         fillImage.fillAmount = currentTime / totalTime;
         color.a = 0;
         fadeImage.color = color;
