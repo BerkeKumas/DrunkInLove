@@ -4,13 +4,32 @@ using UnityEngine;
 
 public class StartAfterDelay : MonoBehaviour
 {
+    private const float INITIAL_DELAY = 24.0f;
+
     [SerializeField] private GameObject player;
-    [SerializeField] private GameObject laptop;
-    [SerializeField] private GameObject backgroundAudioObject;
+    [SerializeField] private GameObject laptopObject;
+    [SerializeField] private GameObject backgroundMusic;
+    [SerializeField] private GameObject hourTimerObject;
+    [SerializeField] private GameObject drunkBarObject;
+
+    private PlayerController playerController;
+    private PinManager pinManager;
+    private AudioSource backgroundAudio;
+    private HourTimer hourTimer;
+    private DrunkBar drunkBar;
+
+    private void Awake()
+    {
+        playerController = player.GetComponent<PlayerController>();
+        pinManager = laptopObject.GetComponent<PinManager>();
+        backgroundAudio = backgroundMusic.GetComponent<AudioSource>();
+        hourTimer = hourTimerObject.GetComponent<HourTimer>();
+        drunkBar = drunkBarObject.GetComponent<DrunkBar>();
+    }
 
     private void Start()
     {
-        StartCoroutine(Delay());
+        StartCoroutine(StartDelay());
     }
 
     private void Update()
@@ -21,19 +40,19 @@ public class StartAfterDelay : MonoBehaviour
         }
     }
 
-    private IEnumerator Delay()
+    private IEnumerator StartDelay()
     {
-        yield return new WaitForSeconds(24);
+        yield return new WaitForSeconds(INITIAL_DELAY);
         StartGame();
     }
 
     private void StartGame()
     {
-        gameObject.GetComponent<CountdownTimer>().startTimer = true;
-        gameObject.GetComponent<FillBar>().startFill = true;
-        player.GetComponent<Player>().playerMovement = true;
-        laptop.GetComponent<PinScript>().startPin = true;
-        backgroundAudioObject.GetComponent<AudioSource>().Play();
+        playerController.CanMove = true;
+        pinManager.IsPinEntryActive = true;
+        backgroundAudio.Play();
+        hourTimer.IsTimerActive = true;
+        drunkBar.StartFill = true;
         this.enabled = false;
     }
 

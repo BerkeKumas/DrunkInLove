@@ -1,8 +1,8 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.SceneManagement;
 using TMPro;
+using System;
 
 public class ReadPin : MonoBehaviour
 {
@@ -11,75 +11,110 @@ public class ReadPin : MonoBehaviour
         KeyCode.Alpha5, KeyCode.Alpha6, KeyCode.Alpha7, KeyCode.Alpha8, KeyCode.Alpha9
     };
 
-    private char[] pinCode = new char[8];
-    private char[] enteredPin = new char[8];
-    private int columnIndex = 0;
-    public bool pinMode = false;
+    public bool PinMode = false;
 
-    [SerializeField] private GameObject[] Tiles;
+    private const int PIN_LENGTH = 8;
+    private const int MAX_DAY = 28;
+    private const int MAX_MONTH = 12;
+    private const int MIN_YEAR = 2000;
+    private const int MAX_YEAR = 2023;
+
+    [SerializeField] private GameObject[] pinTiles;
     [SerializeField] private GameObject gameManager;
-    [SerializeField] private GameObject pinScriptObject;
-    [SerializeField] private GameObject backgroundAudioObject;
-    [SerializeField] private TextMeshProUGUI dateText;
+    [SerializeField] private GameObject pinScriptHandler;
+    [SerializeField] private GameObject backgroundAudioSource;
+    [SerializeField] private TextMeshProUGUI pinDateText;
+
+    private char[] pinCode = new char[PIN_LENGTH];
+    private char[] enteredPin = new char[PIN_LENGTH];
+    private int columnIndex = 0;
+    private Tile[] pinTileScripts;
+    private Image[] pinTileImages;
+    private AudioSource backgroundMusic;
+    private AudioSource audioSource;
+    private TaskManager taskManager;
 
     private void Awake()
     {
-        for (int i = 0; i < enteredPin.Length; i++)
+        pinTileScripts = new Tile[pinTiles.Length];
+        pinTileImages = new Image[pinTiles.Length];
+        for (int i = 0; i < pinTiles.Length; i++)
         {
-            enteredPin[i] = '\0';
+            pinTileScripts[i] = pinTiles[i].GetComponent<Tile>();
+            pinTileImages[i] = pinTiles[i].GetComponent<Image>();
         }
 
-        System.Random random = new System.Random();
+        backgroundMusic = backgroundAudioSource.GetComponent<AudioSource>();
+        audioSource = GetComponent<AudioSource>();
+        taskManager = gameManager.GetComponent<TaskManager>();
 
-        int month = random.Next(1, 13);
-        char[] monthChars = month.ToString("D2").ToCharArray();
-
-        int day = random.Next(1, 29);
-        char[] dayChars = day.ToString("D2").ToCharArray();
-
-        int year = random.Next(2000, 2024);
-        char[] yearChars = year.ToString().ToCharArray();
-
-        pinCode[0] = monthChars[0];
-        pinCode[1] = monthChars[1];
-        pinCode[2] = dayChars[0];
-        pinCode[3] = dayChars[1];
-        pinCode[4] = yearChars[0];
-        pinCode[5] = yearChars[1];
-        pinCode[6] = yearChars[2];
-        pinCode[7] = yearChars[3];
-
-        dateText.text = $"{pinCode[0]}{pinCode[1]}.{pinCode[2]}{pinCode[3]}.{pinCode[4]}{pinCode[5]}{pinCode[6]}{pinCode[7]}";
+        InitializePinArrays();
+        GeneratePin();
+        SetDateText();
     }
 
-    void Update()
+    private void Update()
     {
-        if (!pinMode) return;
+        if (!PinMode) return;
 
         HandleInput();
     }
 
+    private void InitializePinArrays()
+    {
+        for (int i = 0; i < PIN_LENGTH; i++)
+        {
+            enteredPin[i] = '\0';
+        }
+    }
+
+    private void GeneratePin()
+    {
+        System.Random random = new System.Random();
+        int month = random.Next(1, MAX_MONTH + 1);
+        int day = random.Next(1, MAX_DAY + 1);
+        int year = random.Next(MIN_YEAR, MAX_YEAR + 1);
+
+        pinCode = $"{month:D2}{day:D2}{year}".ToCharArray();
+    }
+
+    private void SetDateText()
+    {
+        string formattedDate = $"{pinCode[0]}{pinCode[1]}.{pinCode[2]}{pinCode[3]}.{pinCode[4]}{pinCode[5]}{pinCode[6]}{pinCode[7]}";
+        pinDateText.text = formattedDate;
+    }
+
     private void HandleInput()
     {
-        if (Input.GetKeyDown(KeyCode.Backspace) && columnIndex > 0)
+        if (Input.GetKeyDown(KeyCode.Backspace))
+        {
+            HandleBackspace();
+        }
+
+        HandleNumericInput();
+    }
+
+    private void HandleBackspace()
+    {
+        if (columnIndex > 0)
         {
             columnIndex--;
             enteredPin[columnIndex] = '\0';
-            Tiles[columnIndex].GetComponent<Image>().color = Color.white;
-            Tiles[columnIndex].GetComponent<Tile>().SetLetter(' ');
-            pinScriptObject.GetComponent<PinScript>().PlayKeySound();
+            UpdateTileDisplay(columnIndex, '\0');
         }
+    }
+
+    private void HandleNumericInput()
+    {
         foreach (KeyCode key in SUPPORTED_KEYS)
         {
-            if (Input.GetKeyDown(key) && columnIndex < 8)
+            if (Input.GetKeyDown(key) && columnIndex < PIN_LENGTH)
             {
-                char enteredChar = (char)('0' + key - KeyCode.Alpha0);
+                char enteredChar = KeyCodeToChar(key);
                 enteredPin[columnIndex] = enteredChar;
-                Tiles[columnIndex].GetComponent<Tile>().SetLetter(enteredChar);
-                UpdateColor(columnIndex, enteredChar);
+                UpdateTileDisplay(columnIndex, enteredChar);
                 columnIndex++;
-
-                if (columnIndex == 8)
+                if (columnIndex == PIN_LENGTH)
                 {
                     CheckPinCompletion();
                 }
@@ -88,22 +123,37 @@ public class ReadPin : MonoBehaviour
         }
     }
 
+    private char KeyCodeToChar(KeyCode keyCode)
+    {
+        return (char)('0' + keyCode - KeyCode.Alpha0);
+    }
+
+    private void UpdateTileDisplay(int index, char letter)
+    {
+        pinTileScripts[index].SetLetter(letter);
+        UpdateColor(index, letter);
+    }
+
     private void UpdateColor(int index, char enteredChar)
     {
-        if (pinCode[index] == enteredChar)
+        if (enteredChar == '\0')
         {
-            Tiles[index].GetComponent<Image>().color = Color.green;
+            pinTileImages[index].color = Color.black;
+        }
+        else if (pinCode[index] == enteredChar)
+        {
+            pinTileImages[index].color = Color.green;
         }
         else
         {
-            Tiles[index].GetComponent<Image>().color = Color.red;
+            pinTileImages[index].color = Color.red;
         }
     }
 
     private void CheckPinCompletion()
     {
         bool pinCorrect = true;
-        for (int i = 0; i < pinCode.Length; i++)
+        for (int i = 0; i < PIN_LENGTH; i++)
         {
             if (enteredPin[i] != pinCode[i])
             {
@@ -114,10 +164,10 @@ public class ReadPin : MonoBehaviour
 
         if (pinCorrect)
         {
-            gameManager.GetComponent<TaskManager>().musicTaskDone = true;
-            backgroundAudioObject.GetComponent<AudioSource>().Stop();
-            gameObject.GetComponent<AudioSource>().Play();
-            pinMode = false;
+            taskManager.musicTaskDone = true;
+            backgroundMusic.Stop();
+            audioSource.Play();
+            PinMode = false;
         }
     }
 }

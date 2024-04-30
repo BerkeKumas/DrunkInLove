@@ -6,18 +6,15 @@ using TMPro;
 
 public class Tile : MonoBehaviour
 {
-    private TextMeshProUGUI text;
-
-    public char letter {  get; private set; }
+    private TextMeshProUGUI tileText;
 
     private void Awake()
     {
-        text = GetComponentInChildren<TextMeshProUGUI>();
+        tileText = GetComponentInChildren<TextMeshProUGUI>();
     }
 
     public void SetLetter(char letter)
     {
-        this.letter = letter;
-        text.text = letter.ToString();
+        tileText.text = letter.ToString();
     }
 }

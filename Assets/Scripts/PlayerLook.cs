@@ -4,26 +4,36 @@ using UnityEngine;
 
 public class PlayerLook : MonoBehaviour
 {
-    [SerializeField] private Transform character;
-    [SerializeField] private float sensitivity = 2;
-    [SerializeField] private float smoothing = 1.5f;
+    [SerializeField] private Transform player;
+    [SerializeField] private float mouseSensitivity = 2;
+    [SerializeField] private float rotationSmoothing = 0.05f;
 
-    Vector2 velocity;
-    Vector2 frameVelocity;
+    private Vector2 rotationVelocity = Vector2.zero;
+    private Vector2 frameVelocity = Vector2.zero;
+
     private void Awake()
     {
         Cursor.lockState = CursorLockMode.Locked;
     }
 
-    void Update()
+    private void Update()
     {
-        Vector2 mouseDelta = new Vector2(Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y"));
-        Vector2 rawFrameVelocity = Vector2.Scale(mouseDelta, Vector2.one * sensitivity);
-        frameVelocity = Vector2.Lerp(frameVelocity, rawFrameVelocity, 1 / smoothing);
-        velocity += frameVelocity;
-        velocity.y = Mathf.Clamp(velocity.y, -90, 90);
+        ProcessMouseMovement();
+        ApplyRotation();
+    }
 
-        transform.localRotation = Quaternion.AngleAxis(-velocity.y, Vector3.right);
-        character.localRotation = Quaternion.AngleAxis(velocity.x, Vector3.up);
+    private void ProcessMouseMovement()
+    {
+        Vector2 mouseInputs = new Vector2(Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y"));
+        Vector2 rawFrameVelocity = mouseInputs * mouseSensitivity;
+        frameVelocity = Vector2.Lerp(frameVelocity, rawFrameVelocity, rotationSmoothing);
+        rotationVelocity += frameVelocity;
+        rotationVelocity.y = Mathf.Clamp(rotationVelocity.y, -90, 90);
+    }
+
+    private void ApplyRotation()
+    {
+        transform.localRotation = Quaternion.AngleAxis(-rotationVelocity.y, Vector3.right);
+        player.localRotation = Quaternion.AngleAxis(rotationVelocity.x, Vector3.up);
     }
 }

@@ -2,10 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlateScript : MonoBehaviour
+public class FruitCollector : MonoBehaviour
 {
     [SerializeField] private GameObject gameManager;
-
     [SerializeField] private GameObject watermelonObject;
     [SerializeField] private GameObject cherryObject;
     [SerializeField] private GameObject redAppleObject;
@@ -15,45 +14,48 @@ public class PlateScript : MonoBehaviour
     private bool cherryBool = false;
     private bool redAppleBool = false;
     private bool greenAppleBool = false;
+    private TaskManager taskManager;
+
+    private void Awake()
+    {
+        taskManager = gameManager.GetComponent<TaskManager>();
+    }
 
     private void OnTriggerEnter(Collider other)
     {
         switch (other.name)
         {
             case "Watermelon":
-                Destroy(other.gameObject);
-                watermelonObject.SetActive(true);
                 watermelonBool = true;
-                CheckBools();
+                watermelonObject.SetActive(true);
+                Destroy(other.gameObject);
                 break;
             case "Cherry":
-                Destroy(other.gameObject);
-                cherryObject.SetActive(true); 
                 cherryBool = true;
-                CheckBools();
+                cherryObject.SetActive(true);
+                Destroy(other.gameObject);
                 break;
             case "RedApple":
-                Destroy(other.gameObject);
-                redAppleObject.SetActive(true); 
                 redAppleBool = true;
-                CheckBools();
+                redAppleObject.SetActive(true);
+                Destroy(other.gameObject);
                 break;
             case "GreenApple":
-                Destroy(other.gameObject);
-                greenAppleObject.SetActive(true); 
                 greenAppleBool = true;
-                CheckBools();
+                greenAppleObject.SetActive(true);
+                Destroy(other.gameObject);
                 break;
             default:
                 break;
         }
+        CheckBools();
     }
 
     private void CheckBools()
     {
         if (watermelonBool && cherryBool && redAppleBool && greenAppleBool)
         {
-            gameManager.GetComponent<TaskManager>().fruitTaskDone = true;
+            taskManager.fruitTaskDone = true;
         }
     }
 }

@@ -12,7 +12,7 @@ public class HappyEndScript : MonoBehaviour
 
     private IEnumerator DelayLoadScene()
     {
-        yield return new WaitForSeconds(5);
+        yield return new WaitForSeconds(5.0f);
         SceneManager.LoadScene(3);
     }
 }

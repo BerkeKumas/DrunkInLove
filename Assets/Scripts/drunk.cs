@@ -1,12 +1,11 @@
 ﻿using UnityEngine;
-using System.Collections;
 
-public class drunk : MonoBehaviour
+public class Drunk : MonoBehaviour
 {
-    public Material material;
+    [SerializeField] private Material shaderMaterial;
 
-    void OnRenderImage(RenderTexture source, RenderTexture destination)
+    private void OnRenderImage(RenderTexture source, RenderTexture destination)
     {
-        Graphics.Blit(source, destination, material);
+        Graphics.Blit(source, destination, shaderMaterial);
     }
 }

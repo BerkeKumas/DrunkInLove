@@ -95,7 +95,7 @@ GameObject:
   - component: {fileID: 383057269296059841}
   - component: {fileID: 7931984884366052985}
   m_Layer: 0
-  m_Name: Champagne
+  m_Name: Wine
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
