@@ -5,8 +5,8 @@ using UnityEngine;
 public class PlayerLook : MonoBehaviour
 {
     [SerializeField] private Transform player;
-    [SerializeField] private float mouseSensitivity = 2;
-    [SerializeField] private float rotationSmoothing = 0.05f;
+    [SerializeField] private float mouseSensitivity = 2.0f;
+    [SerializeField] private float rotationSmoothing = 15.0f;
 
     private Vector2 rotationVelocity = Vector2.zero;
     private Vector2 frameVelocity = Vector2.zero;
@@ -26,7 +26,7 @@ public class PlayerLook : MonoBehaviour
     {
         Vector2 mouseInputs = new Vector2(Input.GetAxisRaw("Mouse X"), Input.GetAxisRaw("Mouse Y"));
         Vector2 rawFrameVelocity = mouseInputs * mouseSensitivity;
-        frameVelocity = Vector2.Lerp(frameVelocity, rawFrameVelocity, rotationSmoothing);
+        frameVelocity = Vector2.Lerp(frameVelocity, rawFrameVelocity, rotationSmoothing * Time.deltaTime);
         rotationVelocity += frameVelocity;
         rotationVelocity.y = Mathf.Clamp(rotationVelocity.y, -90, 90);
     }

@@ -188,7 +188,7 @@ public class ObjectInteractions : MonoBehaviour
         {
             ItemSounds(1);
             Instantiate(cupObject, cupPos, Quaternion.identity);
-            fillBarObject.GetComponent<DrunkBar>().DecreaseFill(50.0f);
+            fillBarObject.GetComponent<DrunkBar>().DecreaseFill(75.0f);
             DestroyObject(holdObject);
         }
         else if (holdObject.tag == "zoomtag")

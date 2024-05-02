@@ -3,7 +3,7 @@
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
-        _WobbleIntensity ("Wobble Intensity", Float) = 0.05
+        _WobbleIntensity ("Wobble Intensity", Float) = 0.01
     }
     Subshader
     {
