@@ -4,9 +4,11 @@ using UnityEngine;
 
 public class PlayerLook : MonoBehaviour
 {
+    public bool isMouseEnabled = true;
+    public float mouseSensitivity = 2.5f;
+
     [SerializeField] private Transform player;
-    [SerializeField] private float mouseSensitivity = 2.0f;
-    [SerializeField] private float rotationSmoothing = 15.0f;
+    [SerializeField] private float rotationSmoothing = 25.0f;
 
     private Vector2 rotationVelocity = Vector2.zero;
     private Vector2 frameVelocity = Vector2.zero;
@@ -18,6 +20,8 @@ public class PlayerLook : MonoBehaviour
 
     private void Update()
     {
+        if (!isMouseEnabled) return;
+
         ProcessMouseMovement();
         ApplyRotation();
     }

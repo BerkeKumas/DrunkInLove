@@ -6,22 +6,23 @@ using UnityEngine.SceneManagement;
 public class HourTimer : MonoBehaviour
 {
     public bool IsTimerActive = false;
-
-    private const int SECONDS_TO_WAIT = 2;
+    
     private const int GAME_OVER_SCENE_INDEX = 3;
-    private const float TOTAL_MINUTES = 60f;
+    private const float SECONDS_TO_WAIT = 2.0f;
+    private const float TOTAL_MINUTES = 60.0f;
     private const string TIME_ON_COMPLETE = "08:00";
 
     [SerializeField] private TextMeshProUGUI timerText;
 
-    private void Start()
+    private float elapsedMinutes = 0;
+
+    private void OnEnable()
     {
         StartCoroutine(UpdateTimer());
     }
 
     private IEnumerator UpdateTimer()
     {
-        float elapsedMinutes = 0;
 
         while (elapsedMinutes < TOTAL_MINUTES)
         {

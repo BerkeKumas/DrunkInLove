@@ -58,6 +58,5 @@ public class MotionCameraEffects : MonoBehaviour
 
         float targetFOV = Input.GetKey(KeyCode.LeftShift) ? defaultFOV + runningFOVIncrease : defaultFOV;
         camera.fieldOfView = Mathf.Lerp(camera.fieldOfView, targetFOV, fovSmoothTime * Time.deltaTime);
-        Debug.Log(camera.fieldOfView);
     }
 }

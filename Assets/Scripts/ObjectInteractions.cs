@@ -5,6 +5,7 @@ using TMPro;
 using Unity.VisualScripting;
 using Unity.VisualScripting.Antlr3.Runtime;
 using UnityEngine;
+using UnityEngine.Rendering.PostProcessing;
 
 public class ObjectInteractions : MonoBehaviour
 {
@@ -14,6 +15,10 @@ public class ObjectInteractions : MonoBehaviour
     private const string LAST_LAUNDRY_TEXT = "I think something fell on the ground.";
     private const string HOLDING_KEY_TEXT = "A key I wonder where this opens.";
 
+    [SerializeField] private PostProcessProfile horrorPP;
+    [SerializeField] private GameObject PPVolume;
+    [SerializeField] private GameObject cameraObject;
+    [SerializeField] private GameObject levelUI;
     [SerializeField] private GameObject taskManager;
     [SerializeField] private GameObject holdObjectParent;
     [SerializeField] private GameObject zoomObjectParent;
@@ -63,9 +68,7 @@ public class ObjectInteractions : MonoBehaviour
             }
             else if (unlockDoor)
             {
-                unlockDoor = false;
-                isDoorLocked = false;
-                DestroyObject(holdObject);
+                UnlockDoor();
             }
             else if (!isDoorLocked && doorControl)
             {
@@ -93,6 +96,16 @@ public class ObjectInteractions : MonoBehaviour
         {
             ClearAllDisplays();
         }
+    }
+
+    private void UnlockDoor()
+    {
+        PPVolume.GetComponent<PostProcessVolume>().profile = horrorPP;
+        levelUI.SetActive(false);
+        cameraObject.GetComponent<Drunk>().enabled = false;
+        unlockDoor = false;
+        isDoorLocked = false;
+        DestroyObject(holdObject);
     }
 
     private void HandleRaycastHit(GameObject rayObject)
