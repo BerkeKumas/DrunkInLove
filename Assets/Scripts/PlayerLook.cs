@@ -1,10 +1,12 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerLook : MonoBehaviour
 {
-    public bool isMouseEnabled = true;
+    private const float STARTING_ROTATION = 180.0f;
+    private const float VERTICAL_ROTATION_LIMIT = 90.0f;
+
+    public bool isMouseEnabled = false;
     public float mouseSensitivity = 2.5f;
 
     [SerializeField] private Transform player;
@@ -12,6 +14,8 @@ public class PlayerLook : MonoBehaviour
 
     private Vector2 rotationVelocity = Vector2.zero;
     private Vector2 frameVelocity = Vector2.zero;
+    private float removeX;
+    private float removeY;
 
     private void Awake()
     {
@@ -32,12 +36,17 @@ public class PlayerLook : MonoBehaviour
         Vector2 rawFrameVelocity = mouseInputs * mouseSensitivity;
         frameVelocity = Vector2.Lerp(frameVelocity, rawFrameVelocity, rotationSmoothing * Time.deltaTime);
         rotationVelocity += frameVelocity;
-        rotationVelocity.y = Mathf.Clamp(rotationVelocity.y, -90, 90);
+        rotationVelocity.y = Mathf.Clamp(rotationVelocity.y, -VERTICAL_ROTATION_LIMIT, VERTICAL_ROTATION_LIMIT);
     }
 
     private void ApplyRotation()
     {
         transform.localRotation = Quaternion.AngleAxis(-rotationVelocity.y, Vector3.right);
-        player.localRotation = Quaternion.AngleAxis(rotationVelocity.x, Vector3.up);
+        player.localRotation = Quaternion.AngleAxis(STARTING_ROTATION + rotationVelocity.x, Vector3.up);
+    }
+
+    public void StartMouseRotation()
+    {
+        isMouseEnabled = true;
     }
 }

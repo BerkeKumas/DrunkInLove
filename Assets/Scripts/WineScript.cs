@@ -7,17 +7,19 @@ public class WineScript : MonoBehaviour
     private const float MAX_DISTANCE_TO_POUR = 0.4f;
     private const float GLASS_FILL_LIMIT = 0.92f;
     private const float POUR_ANGLE_LIMIT = 50.0f;
+    private const float POUR_RISE_SPEED = 0.1f;
 
     [SerializeField] private GameObject glass;
     [SerializeField] private GameObject gameManager;
-    [SerializeField] private float pourRiseSpeed = 1f;
 
     private GameObject wineBottleTip;
     private GameObject wineLevel;
     private TaskManager taskManager;
+    private AudioSource audioSource;
 
     private void Awake()
     {
+        audioSource = GetComponent<AudioSource>();
         wineBottleTip = gameObject.transform.GetChild(0).gameObject;
         wineLevel = glass.transform.GetChild(0).gameObject;
         taskManager = gameManager.GetComponent<TaskManager>();
@@ -35,6 +37,7 @@ public class WineScript : MonoBehaviour
         }
         else
         {
+            audioSource.Stop();
             transform.GetChild(0).gameObject.SetActive(false);
         }
     }
@@ -48,12 +51,21 @@ public class WineScript : MonoBehaviour
         {
             if (wineLevel.transform.localPosition.y >= GLASS_FILL_LIMIT)
             {
+                audioSource.Stop();
                 taskManager.wineTaskDone = true;
             }
             else
             {
-                wineLevel.transform.localPosition += new Vector3(0, pourRiseSpeed * Time.deltaTime, 0);
+                if (!audioSource.isPlaying)
+                {
+                    audioSource.Play();
+                }
+                wineLevel.transform.localPosition += new Vector3(0, POUR_RISE_SPEED * Time.deltaTime, 0);
             }
+        }
+        else
+        {
+            audioSource.Stop();
         }
     }
 }

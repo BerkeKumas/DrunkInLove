@@ -3729,9 +3729,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 81dc04f657dfdf0418ee0ff33b3cdc00, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  character: {fileID: 1703553791}
-  sensitivity: 2
-  smoothing: 1.5
+  isMouseEnabled: 1
+  mouseSensitivity: 2.5
+  player: {fileID: 0}
+  rotationSmoothing: 25
 --- !u!114 &963194230
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3744,7 +3745,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3faf9f9f245e5ba4dbed4d9119154470, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  material: {fileID: 2100000, guid: e64eb578e8ace724489e07bb20e4a129, type: 2}
+  shaderMaterial: {fileID: 0}
 --- !u!1 &963696106
 GameObject:
   m_ObjectHideFlags: 0
@@ -4351,9 +4352,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 27bef39fa23939942b5ba516c2dd781e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pourChamp: 0
   glass: {fileID: 334765280}
-  pourRiseSpeed: 0.2
   gameManager: {fileID: 1484780014}
 --- !u!1 &1069248759
 GameObject:
@@ -6967,8 +6966,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c6124409d47575445a88a1d7291c89e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  CanMove: 1
   moveSpeed: 10
-  playerMovement: 1
 --- !u!114 &1703553793
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7011,16 +7010,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 957fde02b99efe9458aac109760b7ee1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  holdPosObj: {fileID: 1363199689}
-  uiElement1: {fileID: 1069248759}
-  uiElement2: {fileID: 583096297}
+  horrorPP: {fileID: 0}
+  PPVolume: {fileID: 0}
+  cameraObject: {fileID: 0}
+  levelUI: {fileID: 0}
+  taskManager: {fileID: 0}
+  holdObjectParent: {fileID: 0}
+  zoomObjectParent: {fileID: 0}
   fillBarObject: {fileID: 1484780014}
   cupObject: {fileID: 1161743277042603995, guid: 0ac25c41efc70944386fe32380a803ff, type: 3}
   cupPosObject: {fileID: 2018131928}
-  itemSoundObject: {fileID: 122616314}
-  itemSounds:
-  - {fileID: 8300000, guid: 366da285c6037b04b87f45851560175f, type: 3}
-  - {fileID: 8300000, guid: 117faa5f9ae97dd4899c79913fb21940, type: 3}
+  soundPlayer: {fileID: 0}
+  keyObject: {fileID: 0}
+  soundEffects: []
+  interactionText: {fileID: 0}
+  captionTextObject: {fileID: 0}
 --- !u!82 &1703553797
 AudioSource:
   m_ObjectHideFlags: 0
@@ -10018,14 +10022,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0162e6b403dad154483e8c5a5e37c1b1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enterPin: 0
+  IsPinEntryActive: 0
+  ShouldEnterPin: 0
   mainCamera: {fileID: 963194225}
   pinCamera: {fileID: 1878107227}
-  player: {fileID: 1703553790}
-  pinBoard: {fileID: 5005062977289986103}
-  keySounds:
-  - {fileID: 8300000, guid: cb0786db516117d448a0e272ea96bbf7, type: 3}
-  startPin: 0
+  playerObject: {fileID: 0}
+  pinEntryPanel: {fileID: 0}
+  keypadSounds: []
 --- !u!82 &919132149415989095
 AudioSource:
   m_ObjectHideFlags: 0
@@ -13059,19 +13062,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2dca4e9a285f2ad438e21429dcd02d26, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pinMode: 1
-  Tiles:
-  - {fileID: 2758409122789546588}
-  - {fileID: 4790985840169526565}
-  - {fileID: 7637977697407187165}
-  - {fileID: 4373412504531972869}
-  - {fileID: 970320053}
-  - {fileID: 144778573}
-  - {fileID: 2075200956}
-  - {fileID: 333910871}
+  PinMode: 0
+  pinTiles: []
   gameManager: {fileID: 1484780014}
-  pinScriptObject: {fileID: 919132149415989092}
-  backgroundAudioObject: {fileID: 0}
+  pinScriptHandler: {fileID: 0}
+  backgroundAudioSource: {fileID: 0}
+  pinDateText: {fileID: 0}
 --- !u!23 &4539702727548541170
 MeshRenderer:
   m_ObjectHideFlags: 0

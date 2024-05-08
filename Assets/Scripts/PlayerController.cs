@@ -14,7 +14,7 @@ public class PlayerController : MonoBehaviour
     private const float STAND_SCALE_Y = 1.0f;
     private const float CROUCH_SCALE_Y = 0.5f;
 
-    public bool CanMove = false;
+    public bool CanMove = true;
 
     [SerializeField] private float moveSpeed = WALK_SPEED;
 

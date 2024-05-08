@@ -5,6 +5,8 @@ using UnityEngine.SceneManagement;
 
 public class PauseManager : MonoBehaviour
 {
+    public bool canPause = false;
+
     private const float SENSITIVITY_FACTOR = 5.0f;
     private const int MENU_INDEX = 0;
 
@@ -25,9 +27,12 @@ public class PauseManager : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.P))
+        if (canPause)
         {
-            PauseGame();
+            if (Input.GetKeyDown(KeyCode.P) || Input.GetKeyDown(KeyCode.Escape))
+            {
+                PauseGame();
+            }
         }
     }
 
@@ -38,7 +43,7 @@ public class PauseManager : MonoBehaviour
         {
             Cursor.lockState = CursorLockMode.None;
             playerLook.isMouseEnabled = false;
-            //STOP BAR & TIME
+
             if (!levelUI.activeSelf)
             {
                 isLevelUIEnabled = false;
@@ -73,6 +78,7 @@ public class PauseManager : MonoBehaviour
             musicObject.GetComponent<AudioSource>().volume = barInput;
         }
     }
+
     public void SoundBar(float barInput)
     {
         foreach (GameObject soundObject in soundObjects)

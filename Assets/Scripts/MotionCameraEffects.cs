@@ -9,13 +9,13 @@ public class MotionCameraEffects : MonoBehaviour
     private float defaultFOV;
     private float defaultPosY = 0;
     private float timer = 0;
-    private Camera camera;
+    private Camera _camera;
 
     void Start()
     {
-        camera = GetComponent<Camera>();
+        _camera = GetComponent<Camera>();
         defaultPosY = transform.localPosition.y;
-        defaultFOV = camera.fieldOfView;
+        defaultFOV = _camera.fieldOfView;
     }
 
     void Update()
@@ -24,7 +24,7 @@ public class MotionCameraEffects : MonoBehaviour
         float horizontal = Input.GetAxis("Horizontal");
         float vertical = Input.GetAxis("Vertical");
 
-        Vector3 cSharpTransform = transform.localPosition;
+        Vector3 cameraTransform = transform.localPosition;
 
         if (Mathf.Abs(horizontal) == 0 && Mathf.Abs(vertical) == 0)
         {
@@ -46,17 +46,21 @@ public class MotionCameraEffects : MonoBehaviour
             float totalAxes = Mathf.Abs(horizontal) + Mathf.Abs(vertical);
             totalAxes = Mathf.Clamp(totalAxes, 0.0f, 1.0f);
             translateChange = totalAxes * translateChange;
-            cSharpTransform.y = defaultPosY + translateChange;
+            cameraTransform.y = defaultPosY + translateChange;
         }
         else
         {
-            cSharpTransform.y = defaultPosY;
+            cameraTransform.y = defaultPosY;
         }
 
-        transform.localPosition = cSharpTransform;
+        transform.localPosition = cameraTransform;
 
+        UpdateFOV();
+    }
 
+    private void UpdateFOV()
+    {
         float targetFOV = Input.GetKey(KeyCode.LeftShift) ? defaultFOV + runningFOVIncrease : defaultFOV;
-        camera.fieldOfView = Mathf.Lerp(camera.fieldOfView, targetFOV, fovSmoothTime * Time.deltaTime);
+        _camera.fieldOfView = Mathf.Lerp(_camera.fieldOfView, targetFOV, fovSmoothTime * Time.deltaTime);
     }
 }

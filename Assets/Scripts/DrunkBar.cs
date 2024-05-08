@@ -6,6 +6,13 @@ using System.Collections;
 
 public class DrunkBar : MonoBehaviour
 {
+    private const int MAX_FILL_DURATION = 100;
+    private const int GAME_OVER_SCENE_INDEX = 3;
+    private const float FILL_SPEED = 2.0f;
+    private const float DRUNK_WOBBLE_FACTOR = 0.06f;
+    private const float DECREASE_DURATION = 1.0f;
+    private const string HALF_FILL_TEXT = "I need a coffee...";
+
     public bool StartFill = false;
 
     [SerializeField] private TextMeshProUGUI captionText;
@@ -16,16 +23,11 @@ public class DrunkBar : MonoBehaviour
     private float currentFillTime = 0.0f;
     private float halfFillPoint;
     private Color fadeImageColor;
-
-    private const int MAX_FILL_DURATION = 100;
-    private const int GAME_OVER_SCENE_INDEX = 3;
-    private const float FILL_SPEED = 2.5f;
-    private const float DRUNK_WOBBLE_FACTOR = 0.075f;
-    private const float DECREASE_DURATION = 1.0f;
-    private const string HALF_FILL_TEXT = "I need a coffee...";
+    private CaptionTextTyper captionTextTyper;
 
     private void Awake()
     {
+        captionTextTyper = captionText.GetComponent<CaptionTextTyper>();
         fadeImageColor = transitionFadeImage.color;
         halfFillPoint = MAX_FILL_DURATION / 2.0f;
     }
@@ -43,7 +45,7 @@ public class DrunkBar : MonoBehaviour
                 if (currentFillTime > halfFillPoint)
                 {
                     UpdateColorOpacity(currentFillTime);
-                    captionText.text = HALF_FILL_TEXT;
+                    captionTextTyper.StartType(HALF_FILL_TEXT, true);
                 }
                 else
                 {
@@ -88,6 +90,6 @@ public class DrunkBar : MonoBehaviour
             yield return null;
         }
 
-        captionText.text = string.Empty;
+        captionTextTyper.ResetTextIfEqual(HALF_FILL_TEXT);
     }
 }

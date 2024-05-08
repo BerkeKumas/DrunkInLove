@@ -5,6 +5,7 @@ using TMPro;
 using Unity.VisualScripting;
 using Unity.VisualScripting.Antlr3.Runtime;
 using UnityEngine;
+using UnityEngine.Playables;
 using UnityEngine.Rendering.PostProcessing;
 
 public class ObjectInteractions : MonoBehaviour
@@ -14,6 +15,7 @@ public class ObjectInteractions : MonoBehaviour
     private const int RAY_LENGTH = 5;
     private const string LAST_LAUNDRY_TEXT = "I think something fell on the ground.";
     private const string HOLDING_KEY_TEXT = "A key I wonder where this opens.";
+    private const string COFFEE_TEXT = "I need a coffee...";
 
     [SerializeField] private PostProcessProfile horrorPP;
     [SerializeField] private GameObject PPVolume;
@@ -22,19 +24,22 @@ public class ObjectInteractions : MonoBehaviour
     [SerializeField] private GameObject taskManager;
     [SerializeField] private GameObject holdObjectParent;
     [SerializeField] private GameObject zoomObjectParent;
-    [SerializeField] private TextMeshProUGUI interactionText;
     [SerializeField] private GameObject fillBarObject;
     [SerializeField] private GameObject cupObject;
     [SerializeField] private GameObject cupPosObject;
-    [SerializeField] private GameObject itemSoundObject;
+    [SerializeField] private GameObject soundPlayer;
     [SerializeField] private GameObject keyObject;
-    [SerializeField] private AudioClip[] itemSounds;
+    [SerializeField] private AudioClip[] soundEffects;
+    [SerializeField] private TextMeshProUGUI interactionText;
     [SerializeField] private TextMeshProUGUI captionTextObject;
+    [SerializeField] private PlayableDirector removeUI;
+    [SerializeField] private AudioSource backgroundMusic;
+    [SerializeField] private AudioSource clockTickingSound;
+    [SerializeField] private AudioClip darkAmbientMusic;
 
     private bool holdingObject = false;
     private bool dropLaundry = false;
     private bool openLaptop = false;
-    private bool isDoorLocked = true;
     private bool doorControl = false;
     private bool unlockDoor = false;
     private bool controlLight = false;
@@ -43,9 +48,13 @@ public class ObjectInteractions : MonoBehaviour
     private GameObject laptopObject;
     private GameObject zoomObject;
     private Vector3 cupPos;
+    private AudioSource soundAudioSource;
+    private CaptionTextTyper captionTextTyper;
 
     private void Awake()
     {
+        soundAudioSource = soundPlayer.GetComponent<AudioSource>();
+        captionTextTyper = captionTextObject.GetComponent<CaptionTextTyper>();
         cupPos = cupPosObject.transform.position;
     }
 
@@ -63,16 +72,12 @@ public class ObjectInteractions : MonoBehaviour
             }
             else if (dropLaundry)
             {
-                ItemSounds(0);
+                PlaySound(0);
                 DestroyObject(holdObject);
             }
-            else if (unlockDoor)
+            else if (doorControl)
             {
-                UnlockDoor();
-            }
-            else if (!isDoorLocked && doorControl)
-            {
-                rayObject.GetComponent<DoorController>().ToggleDoor();
+                ControlDoor();
             }
             else if (holdingObject)
             {
@@ -98,16 +103,37 @@ public class ObjectInteractions : MonoBehaviour
         }
     }
 
-    private void UnlockDoor()
+    private void ControlDoor()
     {
-        PPVolume.GetComponent<PostProcessVolume>().profile = horrorPP;
-        levelUI.SetActive(false);
-        cameraObject.GetComponent<Drunk>().enabled = false;
-        unlockDoor = false;
-        isDoorLocked = false;
-        DestroyObject(holdObject);
+        DoorController controller = rayObject.GetComponent<DoorController>();
+        if (!controller.isDoorLocked)
+        {
+            controller.ToggleDoor();
+        }
+        else if (unlockDoor)
+        {
+            unlockDoor = false;
+            removeUI.Play();
+            StartCoroutine(DisableLevelUI());
+            backgroundMusic.clip = darkAmbientMusic;
+            backgroundMusic.Play();
+            clockTickingSound.Stop();
+            //PPVolume.GetComponent<PostProcessVolume>().profile = horrorPP;
+            cameraObject.GetComponent<Drunk>().enabled = false;
+            captionTextTyper.ResetTextIfEqual(HOLDING_KEY_TEXT);
+            captionTextTyper.ResetTextIfEqual(COFFEE_TEXT);
+            PlaySound(2);
+            controller.isDoorLocked = false;
+            DestroyObject(holdObject);
+        }
     }
 
+    private IEnumerator DisableLevelUI()
+    {
+        yield return new WaitForSeconds(1.0f);
+        levelUI.SetActive(false);
+    }
+    
     private void HandleRaycastHit(GameObject rayObject)
     {
         switch (rayObject.tag)
@@ -158,7 +184,8 @@ public class ObjectInteractions : MonoBehaviour
     private void HandleDoorInteraction()
     {
         doorControl = true;
-        if (isDoorLocked)
+        DoorController controller = rayObject.GetComponent<DoorController>();
+        if (controller.isDoorLocked)
         {
             if (holdObject is { tag: "keytag" })
             {
@@ -172,7 +199,7 @@ public class ObjectInteractions : MonoBehaviour
         }
         else
         {
-            interactionText.text = rayObject.GetComponent<DoorController>().IsDoorOpen() ? "Press \"F\" to Close." : "Press \"F\" to Open.";
+            interactionText.text = controller.IsDoorOpen() ? "Press \"F\" to Close." : "Press \"F\" to Open.";
         }
     }
 
@@ -194,14 +221,14 @@ public class ObjectInteractions : MonoBehaviour
     {
         if (dropLaundry)
         {
-            ItemSounds(0);
+            PlaySound(0);
             DestroyObject(holdObject);
         }
         else if (holdObject.tag == "cuptag")
         {
-            ItemSounds(1);
+            PlaySound(1);
             Instantiate(cupObject, cupPos, Quaternion.identity);
-            fillBarObject.GetComponent<DrunkBar>().DecreaseFill(75.0f);
+            fillBarObject.GetComponent<DrunkBar>().DecreaseFill(100.0f);
             DestroyObject(holdObject);
         }
         else if (holdObject.tag == "zoomtag")
@@ -245,12 +272,12 @@ public class ObjectInteractions : MonoBehaviour
             HoldObject();
             DropKey();
             taskManager.GetComponent<TaskManager>().lastLaundryActive = true;
-            captionTextObject.text = LAST_LAUNDRY_TEXT;
+            captionTextTyper.StartType(LAST_LAUNDRY_TEXT, true);
         }
         else if (rayObject is { tag: "keytag" })
         {
             HoldObject();
-            captionTextObject.text = HOLDING_KEY_TEXT;
+            captionTextTyper.StartType(HOLDING_KEY_TEXT, true);
 
         }
         else if (rayObject is { tag: "zoomtag" })
@@ -264,7 +291,7 @@ public class ObjectInteractions : MonoBehaviour
 
     private void HoldObject()
     {
-        ItemSounds(0);
+        PlaySound(0);
         holdObject = rayObject;
         holdObject.transform.GetComponent<Rigidbody>().isKinematic = true;
         holdObject.transform.parent = holdObjectParent.transform;
@@ -280,10 +307,10 @@ public class ObjectInteractions : MonoBehaviour
         holdingObject = false;
     }
 
-    private void ItemSounds(int index)
+    private void PlaySound(int index)
     {
-        itemSoundObject.GetComponent<AudioSource>().clip = itemSounds[index];
-        itemSoundObject.GetComponent<AudioSource>().Play();
+        soundAudioSource.clip = soundEffects[index];
+        soundAudioSource.Play();
     }
 
     private void DropKey()

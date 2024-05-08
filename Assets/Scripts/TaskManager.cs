@@ -53,9 +53,9 @@ public class TaskManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI wineTaskText;
     [SerializeField] private TextMeshProUGUI fruitTaskText;
     [SerializeField] private TextMeshProUGUI musicTaskText;
-    [SerializeField] private TextMeshProUGUI captionTextObject;
     [SerializeField] private GameObject lastLaundry;
     [SerializeField] private List<GameObject> clothesObjects;
+    [SerializeField] private CaptionTextTyper captionTextTyper;
 
     private List<Task> tasks = new List<Task>();
 
@@ -119,7 +119,7 @@ public class TaskManager : MonoBehaviour
 
     private void AllTasksEnded()
     {
-        captionTextObject.text = FINAL_REMINDER_MESSAGE;
+        captionTextTyper.StartType(FINAL_REMINDER_MESSAGE, true);
         lastLaundry.SetActive(true);
         lastLaundryActive = true;
     }

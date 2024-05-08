@@ -5,14 +5,15 @@ using UnityEngine.SceneManagement;
 
 public class HourTimer : MonoBehaviour
 {
-    public bool IsTimerActive = false;
-    
     private const int GAME_OVER_SCENE_INDEX = 3;
     private const float SECONDS_TO_WAIT = 2.0f;
     private const float TOTAL_MINUTES = 60.0f;
     private const string TIME_ON_COMPLETE = "08:00";
 
+    public bool IsTimerActive = false;
+
     [SerializeField] private TextMeshProUGUI timerText;
+    [SerializeField] private AudioSource clockTickingSound;
 
     private float elapsedMinutes = 0;
 
@@ -30,6 +31,11 @@ public class HourTimer : MonoBehaviour
             {
                 UpdateCountdownDisplay(elapsedMinutes);
                 elapsedMinutes++;
+                clockTickingSound.volume = 0.2f + (elapsedMinutes / TOTAL_MINUTES) * 0.8f;
+                if (elapsedMinutes >= 30)
+                {
+                    clockTickingSound.pitch = 1.0f + 2.0f * (elapsedMinutes - 30) / TOTAL_MINUTES;
+                }
             }
             yield return new WaitForSeconds(SECONDS_TO_WAIT);
         }
